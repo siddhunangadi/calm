@@ -42,6 +42,8 @@ public enum Blocklists {
 
     /// Every browser is closed while the Mahadev session has Hotstar open, so Calm's own window
     /// (series only, one episode) is the only way in.
+    public static let cometBundleID = "ai.perplexity.comet"
+
     public static let browsersClosedDuringShow: Set<String> = [
         "com.apple.Safari", "com.apple.SafariTechnologyPreview",
         "ai.perplexity.comet",

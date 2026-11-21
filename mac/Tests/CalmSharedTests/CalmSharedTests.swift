@@ -343,3 +343,23 @@ struct ShowBrowserTests {
         #expect(!Blocklists.browsersClosedDuringShow.contains("com.calm.bar"))
     }
 }
+
+struct EndShowTests {
+    @Test func endingEarlyClosesTheSessionAndUsesTheDay() throws {
+        var c = Calendar(identifier: .gregorian); c.timeZone = TimeZone(identifier: "Asia/Kolkata")!
+        let t = c.date(from: DateComponents(year: 2027, month: 1, day: 15, hour: 10))!
+        var s = LockState(now: t)
+        try s.startShowSession(now: t, calendar: c)
+        s.endShowSession(now: t.addingTimeInterval(300))
+        #expect(!s.isShowSessionActive(now: t.addingTimeInterval(301)))
+        #expect(s.showUsedToday(now: t.addingTimeInterval(400), calendar: c))
+    }
+
+    @Test func extensionNeedsFileAccessToBeReady() {
+        let path = "/Library/Application Support/Calm/BlankPage"
+        func prefs(_ e: [String: Any]) -> Data { try! JSONSerialization.data(withJSONObject: ["extensions": ["settings": ["a": e]]]) }
+        #expect(BrowserExtensions.state(securePreferences: prefs(["path": path]), extensionPath: path) == .installed)
+        #expect(BrowserExtensions.state(securePreferences: prefs(["path": path, "newAllowFileAccess": true]), extensionPath: path) == .ready)
+        #expect(BrowserExtensions.state(securePreferences: prefs(["path": "/x"]), extensionPath: path) == .missing)
+    }
+}

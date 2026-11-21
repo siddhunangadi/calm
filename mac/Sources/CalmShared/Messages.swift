@@ -11,6 +11,7 @@ public struct CalmRequest: Codable, Equatable {
         case prepareChromeProfile       // put the Chrome lock profile where you can open it
         case startShow                  // today's Devon Ke Dev Mahadev session
         case showEpisode                // the episode chosen in it (value: episode id)
+        case endShow                    // end today's session early (always allowed: it only tightens)
     }
     public var kind: Kind
     public var value: String?

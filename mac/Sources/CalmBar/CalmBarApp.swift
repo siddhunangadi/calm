@@ -440,35 +440,49 @@ struct PanelView: View {
         let st = guardClient.status
         let ends = st?.showSessionEnds.flatMap { $0 > Date() ? $0 : nil }
         let used = st?.showUsedToday ?? false
+        let cometReady = st != nil && !(st?.blankPageMissing ?? []).contains("Comet")
         let subtitle: String
-        if let ends { subtitle = "Browsers closed until \(ends.formatted(date: .omitted, time: .shortened))" }
+        if let ends { subtitle = "Open in Comet until \(ends.formatted(date: .omitted, time: .shortened))" }
         else if used { subtitle = "Today's episode is done · next one tomorrow" }
-        else { subtitle = "One episode a day · browsers close for 40 min" }
+        else if !cometReady { subtitle = "Add the Calm extension to Comet first" }
+        else { subtitle = "One episode a day in Comet · 40 min" }
         return Card {
             Row(symbol: "sparkles", tint: Color(red: 0.95, green: 0.55, blue: 0.15),
                 title: "Devon Ke Dev Mahadev", subtitle: subtitle) {
                 if ends != nil {
-                    Button("Open") { ShowWindow.shared.show(guardClient: guardClient) }.controlSize(.small)
+                    HStack(spacing: 6) {
+                        Button("Open") { openInComet() }.controlSize(.small)
+                        Button("End now") { guardClient.send(.endShow) }.controlSize(.small)
+                    }
                 } else {
                     Button("Watch") {
                         guardClient.send(.startShow)
                         Task { @MainActor in
-                            // Wait for the guard to open Hotstar before loading it.
+                            // Wait for the guard to open Hotstar, then let the DNS cache clear.
                             for _ in 0..<20 {
                                 try? await Task.sleep(nanoseconds: 500_000_000)
                                 guardClient.refresh()
                                 if guardClient.status?.showSessionEnds != nil { break }
                             }
                             if guardClient.status?.showSessionEnds != nil {
-                                try? await Task.sleep(nanoseconds: 1_500_000_000)   // let the DNS cache clear
-                                ShowWindow.shared.show(guardClient: guardClient)
+                                try? await Task.sleep(nanoseconds: 1_500_000_000)
+                                openInComet()
                             }
                         }
                     }
                     .controlSize(.small)
-                    .disabled(used || st == nil)
+                    .disabled(used || !cometReady)
                 }
             }
+        }
+    }
+
+    private func openInComet() {
+        let url = ShowRules.start
+        if let comet = NSWorkspace.shared.urlForApplication(withBundleIdentifier: Blocklists.cometBundleID) {
+            NSWorkspace.shared.open([url], withApplicationAt: comet, configuration: NSWorkspace.OpenConfiguration())
+        } else {
+            NSWorkspace.shared.open(url)
         }
     }
 

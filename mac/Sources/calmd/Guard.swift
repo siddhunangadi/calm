@@ -26,6 +26,8 @@ final class Guard {
     private var bundleIDCache: [String: String] = [:]
     private var profileDropCreatedAt: Date?
     private var blankPageMissing: [String] = []
+    /// Comet has the extension on (with file access) in every profile, so it may stay open during the Mahadev session.
+    private var cometReadyForShow = false
 
     init() {
         let now = Date()
@@ -72,7 +74,8 @@ final class Guard {
         }
         if tick % 5 == 0 { checkChromeProfile(now: now) }
         if tick % 20 == 0 { protectOwnFiles() }
-        if tick % 20 == 0 { checkBlankPageExtension(now: now) }
+        // Every minute, and every 9 seconds while the Mahadev session lets Comet stay open.
+        if tick % 20 == 0 || (tick % 3 == 0 && state.isShowSessionActive(now: now)) { checkBlankPageExtension(now: now) }
 
         save()
         writeStatus(now: now)
@@ -135,8 +138,16 @@ final class Guard {
                 profileDropCreatedAt = now
                 lastMessage = "Chrome lock profile ready. Approve it in System Settings."
             case .startShow:
+                checkBlankPageExtension(now: now)
+                guard cometReadyForShow else {
+                    lastMessage = "Add the Calm extension to Comet (with file access) first."
+                    break
+                }
                 try state.startShowSession(now: now)
                 lastMessage = "Devon Ke Dev Mahadev: today's 40 minutes have started."
+            case .endShow:
+                state.endShowSession(now: now)
+                lastMessage = "Mahadev session ended. Hotstar is blocked again."
             case .showEpisode:
                 try state.chooseEpisode(value, now: now)
             }
@@ -160,7 +171,7 @@ final class Guard {
 
     private func expectedHostsSection() -> String {
         let removed = Set(settings.removedSites)
-        // During today's Mahadev session Hotstar is reachable (every browser is closed meanwhile).
+        // During today's Mahadev session Hotstar is reachable (only Comet with the Calm extension may run meanwhile).
         let open = state.isShowSessionActive(now: Date()) ? Blocklists.showSites : []
         return HostsFile.section(primary: settings.activeSites.filter { !open.contains($0) }, extra: adultDomains.filter { !removed.contains($0) })
     }
@@ -287,8 +298,13 @@ final class Guard {
     private func killBlockedApps() {
         var blocked = settings.activeApps
         if !chromeProfileInstalled() { blocked.insert(Blocklists.chromeBundleID) }
-        // Hotstar is open only for Calm's Mahadev window, so no browser may run meanwhile.
-        if state.isShowSessionActive(now: Date()) { blocked.formUnion(Blocklists.browsersClosedDuringShow) }
+        // While Hotstar is open for the Mahadev session, every browser but a ready Comet is closed.
+        if state.isShowSessionActive(now: Date()) {
+            var closed = Blocklists.browsersClosedDuringShow
+            // Comet may stay: its Calm extension limits Hotstar to the series and one episode.
+            if cometReadyForShow { closed.remove(Blocklists.cometBundleID) }
+            blocked.formUnion(closed)
+        }
         let out = sh("/bin/ps", ["-axww", "-o", "pid=,comm="]).out
         for line in out.split(whereSeparator: \.isNewline) {
             let trimmed = line.drop(while: { $0 == " " })
@@ -307,6 +323,7 @@ final class Guard {
         guard let uid = consoleUserID(), let pw = getpwuid(uid_t(uid)), let homeC = pw.pointee.pw_dir else { return }
         let home = String(cString: homeC)
         var missing: [String] = []
+        var cometReady = false
         for browser in BrowserExtensions.browsers {
             let dir = home + "/" + browser.dataDir
             let profiles = BrowserExtensions.profiles(browserDir: dir)
@@ -314,9 +331,13 @@ final class Guard {
             var anyMissing = false
             for profile in profiles {
                 let key = "\(browser.name)/\(profile)"
-                guard let data = FileManager.default.contents(atPath: dir + "/" + profile + "/Secure Preferences") else { continue }
-                if BrowserExtensions.isInstalled(securePreferences: data) {
+                guard let data = FileManager.default.contents(atPath: dir + "/" + profile + "/Secure Preferences") else {
+                    anyMissing = true; continue
+                }
+                let st = BrowserExtensions.state(securePreferences: data)
+                if st != .missing {
                     if !settings.blankPageSeen.contains(key) { settings.blankPageSeen.append(key) }
+                    if st != .ready { anyMissing = true }   // still needs "Allow access to file URLs"
                 } else {
                     anyMissing = true
                     if settings.blankPageSeen.contains(key) {
@@ -326,8 +347,10 @@ final class Guard {
                 }
             }
             if anyMissing { missing.append(browser.name) }
+            if browser.name == "Comet" { cometReady = !anyMissing }
         }
         blankPageMissing = missing
+        cometReadyForShow = cometReady
     }
 
     // MARK: - Chrome lock profile

@@ -1,11 +1,32 @@
 {
   "manifest_version": 3,
   "name": "Calm",
-  "version": "1.0",
-  "description": "Shows a plain black page instead of an error for sites Calm blocks.",
-  "permissions": ["declarativeNetRequest", "alarms"],
-  "host_permissions": ["<all_urls>", "file:///*"],
-  "background": { "service_worker": "background.js" },
-  "web_accessible_resources": [{ "resources": ["blank.html"], "matches": ["<all_urls>"] }],
-  "icons": { "128": "icon.png" }
+  "version": "1.1",
+  "description": "Black page for sites Calm blocks; Devon Ke Dev Mahadev only, one episode a day, during Calm's session.",
+  "permissions": [
+    "declarativeNetRequest",
+    "alarms",
+    "webNavigation",
+    "storage"
+  ],
+  "host_permissions": [
+    "<all_urls>",
+    "file:///*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "blank.html"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
+  "icons": {
+    "128": "icon.png"
+  }
 }

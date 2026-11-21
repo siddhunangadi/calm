@@ -105,6 +105,12 @@ public struct LockState: Codable, Equatable {
         showEpisodeID = nil
     }
 
+    /// Ending early is always allowed. The day's session counts as used.
+    public mutating func endShowSession(now: Date) {
+        guard isShowSessionActive(now: now), let s = showSessionStart else { return }
+        showSessionStart = min(s, now.addingTimeInterval(-Self.showSessionDuration))
+    }
+
     /// The first episode opened in a session is the only one allowed that day.
     public mutating func chooseEpisode(_ id: String, now: Date) throws {
         guard isShowSessionActive(now: now) else { throw LockError.showNotActive }

@@ -14,19 +14,31 @@ public enum BrowserExtensions {
         Browser(name: "Chrome", dataDir: "Library/Application Support/Google/Chrome"),
     ]
 
+    public enum State: Equatable { case missing, installed, ready }
+
+    /// `.ready` = installed, turned on, and allowed to read files (it needs Calm's status for the Mahadev session).
+    public static func state(securePreferences data: Data, extensionPath: String = CalmPaths.blankPageExtension) -> State {
+        guard let entry = entry(securePreferences: data, extensionPath: extensionPath) else { return .missing }
+        return (entry["newAllowFileAccess"] as? Bool) == true ? .ready : .installed
+    }
+
     public static func isInstalled(securePreferences data: Data, extensionPath: String = CalmPaths.blankPageExtension) -> Bool {
+        entry(securePreferences: data, extensionPath: extensionPath) != nil
+    }
+
+    private static func entry(securePreferences data: Data, extensionPath: String) -> [String: Any]? {
         guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let ext = json["extensions"] as? [String: Any],
-              let settings = ext["settings"] as? [String: Any] else { return false }
+              let settings = ext["settings"] as? [String: Any] else { return nil }
         let want = (extensionPath as NSString).standardizingPath
         for case let entry as [String: Any] in settings.values {
             guard let path = entry["path"] as? String, (path as NSString).standardizingPath == want else { continue }
-            if let state = entry["state"] as? Int, state == 0 { return false }
-            if let reasons = entry["disable_reasons"] as? [Any], !reasons.isEmpty { return false }
-            if let reasons = entry["disable_reasons"] as? Int, reasons != 0 { return false }
-            return true
+            if let state = entry["state"] as? Int, state == 0 { return nil }
+            if let reasons = entry["disable_reasons"] as? [Any], !reasons.isEmpty { return nil }
+            if let reasons = entry["disable_reasons"] as? Int, reasons != 0 { return nil }
+            return entry
         }
-        return false
+        return nil
     }
 
     /// Profile folders ("Default", "Profile 1", …) of a browser that has been used.

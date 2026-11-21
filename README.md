@@ -53,13 +53,17 @@ counts as tampering and restarts your streak. (The site stays blocked either way
 
 Now the Focus switch in the leaf menu hides other apps **and** silences their notifications.
 
-## Devon Ke Dev Mahadev (one episode a day)
+## Devon Ke Dev Mahadev (one episode a day, in Comet)
 
-JioHotstar stays blocked except for this one series. In the leaf menu, **Devon Ke Dev Mahadev → Watch** opens it in
-Calm's own window for **40 minutes, once a day**:
-- the window has no address bar and only shows the series (search, its episodes and the sign-in pages);
-- the first episode you open that day is the only one that plays: other episodes, and autoplay, are stopped;
-- during those 40 minutes every browser (Comet, Chrome, Safari, Arc, Brave…) is closed, so Calm's window is the only way onto Hotstar.
+JioHotstar stays blocked except for this one series. First add the Calm extension to Comet (see "Black page" above,
+including **Allow access to file URLs**). Then **leaf menu → Devon Ke Dev Mahadev → Watch** opens the series in Comet
+for **40 minutes, once a day**:
+- the Calm extension lets only the series, its episodes, its search and Hotstar's sign-in pages open; anything else
+  on Hotstar goes black;
+- the first episode you open in the session is the only one that plays; other episodes and autoplay go black;
+- other browsers close during the session (Comet stays because its Calm extension enforces the rules; if the
+  extension is removed or turned off, Comet closes too);
+- **End now** finishes the session early at any time.
 
 ## The 24-hour unlock
 

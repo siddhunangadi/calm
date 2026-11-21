@@ -23,6 +23,8 @@ jobs:
         run: swift --version
       - name: Unit tests
         run: swift test
+      - name: Extension rule tests
+        run: osascript -l JavaScript Tests/ExtensionRules/rules-test.js "$PWD/Resources/blankpage/rules.js"
       - name: Build installer
         run: ./scripts/build-pkg.sh
       - name: Upload Calm.pkg
