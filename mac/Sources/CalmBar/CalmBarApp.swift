@@ -15,9 +15,10 @@ enum CalmMain {
 }
 
 struct CalmBarApp: App {
-    @StateObject private var guardClient = GuardClient()
+    @NSApplicationDelegateAdaptor(CalmAppDelegate.self) private var appDelegate
+    @StateObject private var guardClient = GuardClient.shared
     @StateObject private var focus = FocusController()
-    @StateObject private var spotify = SpotifyController()
+    @StateObject private var spotify = SpotifyController.shared
     @StateObject private var updater = Updater()
 
     var body: some Scene {

@@ -17,8 +17,14 @@
     <key>CFBundleVersion</key>
     <string>1</string>
     <key>LSMinimumSystemVersion</key>
-    <string>13.0</string>
+    <string>14.0</string>
     <!-- Menu-bar only: no Dock icon. -->
+    <!-- calm:// links from the desktop widgets' play/pause/skip buttons. -->
+    <key>CFBundleURLTypes</key>
+    <array><dict>
+        <key>CFBundleURLName</key><string>com.calm.bar</string>
+        <key>CFBundleURLSchemes</key><array><string>calm</string></array>
+    </dict></array>
     <key>LSUIElement</key>
     <true/>
     <key>NSAppleEventsUsageDescription</key>

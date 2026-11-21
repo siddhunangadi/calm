@@ -65,6 +65,15 @@ for **40 minutes, once a day**:
   extension is removed or turned off, Comet closes too);
 - **End now** finishes the session early at any time.
 
+## Desktop widgets
+
+Right-click the desktop → **Edit Widgets…** → search **Calm**:
+- **Clean streak** (small or medium): days clean, ring to your next milestone, Protected status.
+- **Now playing** (small or medium): what's playing in Spotify (songs and podcasts) with artwork and ⏮ ⏯ ⏭.
+
+The Calm menu-bar app keeps them up to date. macOS limits how often widgets redraw, so a new song can take a
+moment to appear; the buttons always work straight away.
+
 ## The 24-hour unlock
 
 1. Leaf menu → write why you want to unlock → **Request unlock**.

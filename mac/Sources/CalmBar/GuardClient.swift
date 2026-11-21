@@ -4,6 +4,8 @@ import CalmShared
 /// Talks to the guard: reads its status file and drops requests in its inbox.
 @MainActor
 final class GuardClient: ObservableObject {
+    static let shared = GuardClient()
+
     @Published private(set) var status: CalmStatus?
     @Published private(set) var guardRunning = false
     private var timer: Timer?

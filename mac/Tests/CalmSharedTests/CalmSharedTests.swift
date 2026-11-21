@@ -363,3 +363,22 @@ struct EndShowTests {
         #expect(BrowserExtensions.state(securePreferences: prefs(["path": "/x"]), extensionPath: path) == .missing)
     }
 }
+
+struct WidgetDataTests {
+    @Test func streakAndGoal() {
+        let start = Date(timeIntervalSince1970: 1_800_000_000)
+        let w = WidgetData(streakStart: start, protected: true, blockedSiteCount: 10, track: nil)
+        #expect(w.streakDays(now: start.addingTimeInterval(4.5 * 86_400)) == 4)
+        let g = w.goal(now: start.addingTimeInterval(3.5 * 86_400))
+        #expect(g.days == 7)
+        #expect(abs(g.progress - 0.5) < 0.001)
+    }
+    @Test func podcastSubtitleUsesShow() {
+        #expect(WidgetData.Track(title: "Ep 1", artist: "", album: "Figuring Out", playing: true).subtitle == "Figuring Out")
+    }
+    @Test func roundTrips() throws {
+        let w = WidgetData(streakStart: Date(timeIntervalSince1970: 1_800_000_000), protected: true, blockedSiteCount: 3,
+                           track: .init(title: "a", artist: "b", album: "c", playing: false, artworkFile: "x.jpg"))
+        #expect(try CalmJSON.decoder.decode(WidgetData.self, from: CalmJSON.encoder.encode(w)) == w)
+    }
+}

@@ -41,6 +41,15 @@ done
 sort -u -o "$ADULT" "$ADULT"
 echo "adult list: $(wc -l < "$ADULT") sites"
 
+# Desktop widgets: an app extension inside CalmBar.app (sandboxed; signed before the app).
+WEX="$ROOT/Applications/CalmBar.app/Contents/PlugIns/CalmWidgets.appex/Contents"
+mkdir -p "$WEX/MacOS"
+cp "$BIN/CalmWidgets" "$WEX/MacOS/CalmWidgets"
+cp Resources/widgets/Info.plist "$WEX/Info.plist"
+/usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" "$WEX/Info.plist"
+codesign --force --sign - --entitlements Resources/widgets/CalmWidgets.entitlements \
+    "$ROOT/Applications/CalmBar.app/Contents/PlugIns/CalmWidgets.appex"
+
 # Ad-hoc signatures (required on Apple silicon). Not notarized: first open is right-click → Open.
 codesign --force --sign - "$ROOT/Library/PrivilegedHelperTools/com.calm.calmd"
 codesign --force --sign - "$ROOT/Applications/CalmBar.app"
@@ -55,7 +64,7 @@ xattr -cr "$ROOT"
 pkgbuild --analyze --root "$ROOT" "$OUT/components.plist"
 count=$(/usr/libexec/PlistBuddy -c "Print" "$OUT/components.plist" | grep -c "RootRelativeBundlePath" || true)
 for ((i = 0; i < count; i++)); do
-    /usr/libexec/PlistBuddy -c "Set :$i:BundleIsRelocatable false" "$OUT/components.plist"
+    /usr/libexec/PlistBuddy -c "Set :$i:BundleIsRelocatable false" "$OUT/components.plist" 2>/dev/null || true
 done
 
 pkgbuild --root "$ROOT" --component-plist "$OUT/components.plist" --scripts scripts/pkg-scripts \

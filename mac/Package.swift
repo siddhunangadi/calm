@@ -12,10 +12,15 @@ var targets: [Target] = [
 #if os(macOS)
 // The menu-bar app needs AppKit/SwiftUI, so it only builds on a Mac.
 targets.append(.executableTarget(name: "CalmBar", dependencies: ["CalmShared"]))
+// Desktop widgets (WidgetKit app extension, packaged into CalmBar.app/Contents/PlugIns by build-pkg.sh).
+targets.append(.executableTarget(
+    name: "CalmWidgets", dependencies: ["CalmShared"],
+    swiftSettings: [.unsafeFlags(["-application-extension"])],
+    linkerSettings: [.unsafeFlags(["-Xlinker", "-application_extension", "-Xlinker", "-e", "-Xlinker", "_NSExtensionMain"])]))
 #endif
 
 let package = Package(
     name: "Calm",
-    platforms: [.macOS(.v13)],
+    platforms: [.macOS(.v14)],
     targets: targets
 )
