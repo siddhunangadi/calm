@@ -19,6 +19,8 @@ cp Resources/app/Info.plist "$ROOT/Applications/CalmBar.app/Contents/Info.plist"
 /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" "$ROOT/Applications/CalmBar.app/Contents/Info.plist"
 cp Resources/launchd/com.calm.calmd.plist "$ROOT/Library/LaunchDaemons/"
 cp Resources/launchd/com.calm.bar.plist "$ROOT/Library/LaunchAgents/"
+cp scripts/reload-bar.sh "$ROOT/Library/Application Support/Calm/reload-bar.sh"
+chmod 755 "$ROOT/Library/Application Support/Calm/reload-bar.sh"
 
 # Browser extension: black page instead of an error for blocked sites (Chrome, Comet and other Chromium browsers).
 EXT="$ROOT/Library/Application Support/Calm/BlankPage"

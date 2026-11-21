@@ -74,9 +74,9 @@ final class Updater: ObservableObject {
             phase = .installing(c.version)
             try await runInstaller(pkg: pkg.path, version: c.version)
             try? FileManager.default.removeItem(at: dir)
-            // The new version is on disk. Quit; launchd (KeepAlive) starts the new one straight away.
-            try? await Task.sleep(nanoseconds: 500_000_000)
-            exit(0)
+            // The installer re-registers Calm with macOS in a few seconds, which restarts this app as the
+            // new version. Keep running until then (quitting early would leave no menu if that failed).
+            phase = .installing(c.version)
         } catch {
             try? FileManager.default.removeItem(at: dir)
             phase = .failed(message(error))
