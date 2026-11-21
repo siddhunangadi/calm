@@ -23,7 +23,7 @@ final class WidgetFeeder {
     func tick(force: Bool = false) {
         let status = GuardClient.shared.status
         var track: WidgetData.Track?
-        if let (t, art) = SpotifyController.shared.currentTrack() {
+        if let (t, art) = SpotifyController.shared.widgetTrack() {
             track = t
             track?.artworkFile = artworkFile(for: art)
         }
@@ -94,10 +94,9 @@ final class CalmAppDelegate: NSObject, NSApplicationDelegate {
         Task { @MainActor in
             let sp = SpotifyController.shared
             switch action {
-            case "playpause": sp.playPause()
-            case "next": sp.next()
-            case "previous": sp.previous()
-            case "play": sp.playlistURI == nil ? sp.playPause() : sp.playMyPlaylist()
+            case "playpause", "play": sp.widgetPlayPause()
+            case "next": sp.isSpotifyActive ? sp.next() : sp.resumeLast()
+            case "previous": sp.isSpotifyActive ? sp.previous() : sp.resumeLast()
             default: return
             }
             try? await Task.sleep(nanoseconds: 800_000_000)
