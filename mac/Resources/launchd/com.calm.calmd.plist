@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.calm.calmd</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Library/PrivilegedHelperTools/com.calm.calmd</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <!-- Restart whenever it stops, except after a clean uninstall (exit code 0). -->
+    <key>KeepAlive</key>
+    <dict>
+        <key>SuccessfulExit</key>
+        <false/>
+    </dict>
+    <key>ThrottleInterval</key>
+    <integer>5</integer>
+    <key>StandardErrorPath</key>
+    <string>/var/log/calmd.log</string>
+</dict>
+</plist>

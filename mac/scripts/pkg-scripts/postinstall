@@ -1,0 +1,27 @@
+#!/bin/bash
+# Start the guard (as root) and the menu-bar app (as you).
+chown root:wheel /Library/PrivilegedHelperTools/com.calm.calmd \
+    /Library/LaunchDaemons/com.calm.calmd.plist /Library/LaunchAgents/com.calm.bar.plist
+chmod 755 /Library/PrivilegedHelperTools/com.calm.calmd
+chmod 644 /Library/LaunchDaemons/com.calm.calmd.plist /Library/LaunchAgents/com.calm.bar.plist
+
+launchctl bootstrap system /Library/LaunchDaemons/com.calm.calmd.plist 2>/dev/null \
+    || launchctl kickstart -k system/com.calm.calmd
+
+uid=$(stat -f %u /dev/console)
+# When the leaf menu's "Update now" runs this install, the menu-bar app is waiting for it to finish
+# and restarts itself afterwards, so don't kill it here.
+if [ "$uid" != "0" ] && [ ! -e "/Library/Application Support/Calm/.self-update" ]; then
+    launchctl bootout "gui/$uid/com.calm.bar" 2>/dev/null || true
+    # bootout returns before the old app has fully stopped; bootstrapping too early fails silently.
+    for _ in 1 2 3 4 5 6 7 8 9 10; do
+        launchctl print "gui/$uid/com.calm.bar" >/dev/null 2>&1 || break
+        sleep 1
+    done
+    for _ in 1 2 3 4 5; do
+        launchctl bootstrap "gui/$uid" /Library/LaunchAgents/com.calm.bar.plist 2>/dev/null && break
+        launchctl print "gui/$uid/com.calm.bar" >/dev/null 2>&1 && break
+        sleep 1
+    done
+fi
+exit 0

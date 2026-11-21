@@ -1,0 +1,13 @@
+#!/bin/bash
+# Upgrade: stop the old guard and lift the delete-protection so new files can be copied in.
+# postinstall turns everything back on straight away.
+launchctl bootout system/com.calm.calmd 2>/dev/null || true
+for p in /Library/PrivilegedHelperTools/com.calm.calmd /Library/LaunchDaemons/com.calm.calmd.plist \
+         /Library/LaunchAgents/com.calm.bar.plist; do
+    chflags noschg "$p" 2>/dev/null || true
+done
+chflags -R noschg /Applications/CalmBar.app 2>/dev/null || true
+# Delete the previous version's app so no old files are left behind. Settings, streak and lock
+# live in /Library/Application Support/Calm/private and are never touched.
+rm -rf /Applications/CalmBar.app
+exit 0
