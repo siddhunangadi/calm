@@ -14,6 +14,8 @@ public enum CalmPaths {
     public static let secretFile = privateDir + "/removal-password"
     /// Big adult-site list shipped by the installer (optional, the DNS filter is the main defence).
     public static let adultHostsFile = supportDir + "/adult-hosts.txt"
+    /// The browser extension that shows a black page for blocked sites (loaded unpacked from here).
+    public static let blankPageExtension = supportDir + "/BlankPage"
     /// Where the Chrome lock profile is placed briefly so you can install it.
     public static let profileDrop = "/Users/Shared/Calm-Chrome.mobileconfig"
 

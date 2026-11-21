@@ -20,6 +20,12 @@ cp Resources/app/Info.plist "$ROOT/Applications/CalmBar.app/Contents/Info.plist"
 cp Resources/launchd/com.calm.calmd.plist "$ROOT/Library/LaunchDaemons/"
 cp Resources/launchd/com.calm.bar.plist "$ROOT/Library/LaunchAgents/"
 
+# Browser extension: black page instead of an error for blocked sites (Chrome, Comet and other Chromium browsers).
+EXT="$ROOT/Library/Application Support/Calm/BlankPage"
+mkdir -p "$EXT"
+cp Resources/blankpage/* "$EXT/"
+"$BIN/calmd" --print-sites > "$EXT/sites.json"
+
 # Adult-site lists (StevenBlack/hosts extensions). The DNS filter is the main defence; this is extra.
 ADULT="$ROOT/Library/Application Support/Calm/adult-hosts.txt"
 : > "$ADULT"

@@ -38,6 +38,13 @@ How sites are blocked, in short:
 4. When macOS asks whether Calm may control Spotify, click **OK**.
 5. Paste your Spotify playlist link in the leaf menu (Spotify → your playlist → ··· → Share → Copy link).
 
+### Black page instead of an error (one time, per browser)
+Blocked sites normally show the browser's "can't be reached" page. To get a plain black page instead in **Comet or Chrome**:
+open `comet://extensions` (or `chrome://extensions`) → turn on **Developer mode** → **Load unpacked** →
+choose **Macintosh HD → Library → Application Support → Calm → BlankPage** → in its Details, turn on **Allow access to file URLs**.
+The leaf menu shows a "Black page" card with these steps until it's done. Once it's on, removing or turning it off
+counts as tampering and restarts your streak. (The site stays blocked either way: the extension only changes what you see.)
+
 ### Silence notifications (one time)
 1. System Settings → **Focus** → **+** → Custom → name it **Calm**.
    Allowed apps: **WhatsApp** and **Spotify** only. Allowed people: whoever you want calls from.

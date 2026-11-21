@@ -36,6 +36,9 @@ public struct CalmSettings: Codable, Equatable {
     public var hostsSectionFingerprint: String?
     /// True while Calm's firewall rules are supposed to be loaded.
     public var firewallLoaded = false
+    /// Browser profiles ("Comet/Default") where the black-page extension has been seen installed.
+    /// Removing it from one of these afterwards counts as tampering.
+    public var blankPageSeen: [String] = []
     public init() {}
 
     // Missing keys fall back to defaults, so older settings files still load after an update.
@@ -49,6 +52,7 @@ public struct CalmSettings: Codable, Equatable {
         chromeProfileSeen = try c.decodeIfPresent(Bool.self, forKey: .chromeProfileSeen) ?? false
         hostsSectionFingerprint = try c.decodeIfPresent(String.self, forKey: .hostsSectionFingerprint)
         firewallLoaded = try c.decodeIfPresent(Bool.self, forKey: .firewallLoaded) ?? false
+        blankPageSeen = try c.decodeIfPresent([String].self, forKey: .blankPageSeen) ?? []
     }
 
     public var activeSites: [String] {
@@ -116,12 +120,16 @@ public struct CalmStatus: Codable, Equatable {
     public var showSessionEnds: Date?
     public var showUsedToday: Bool?
     public var showEpisodeID: String?
+    /// Browsers ("Comet") that are set up but don't have the black-page extension yet.
+    public var blankPageMissing: [String]?
 
     public init(heartbeat: Date, phase: Phase, phaseEnds: Date?, unlockReason: String?, streakStart: Date,
                 tamperLog: [TamperEvent], extraSites: [String], removedSites: [String], extraApps: [String],
                 blockedSiteCount: Int, chromeProfileInstalled: Bool, dnsRescueUntil: Date?, dnsRescuesLeft: Int,
                 revealedRemovalPassword: String?, lastMessage: String?,
-                showSessionEnds: Date? = nil, showUsedToday: Bool? = nil, showEpisodeID: String? = nil) {
+                showSessionEnds: Date? = nil, showUsedToday: Bool? = nil, showEpisodeID: String? = nil,
+                blankPageMissing: [String]? = nil) {
+        self.blankPageMissing = blankPageMissing
         self.showSessionEnds = showSessionEnds; self.showUsedToday = showUsedToday; self.showEpisodeID = showEpisodeID
         self.heartbeat = heartbeat; self.phase = phase; self.phaseEnds = phaseEnds
         self.unlockReason = unlockReason; self.streakStart = streakStart; self.tamperLog = tamperLog

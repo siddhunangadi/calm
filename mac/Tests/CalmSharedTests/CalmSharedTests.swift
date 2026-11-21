@@ -314,3 +314,22 @@ struct ShowRulesTests {
         #expect(d("https://www.hotstar.com/in/profiles") == .allow)
     }
 }
+
+struct BrowserExtensionTests {
+    func prefs(_ entries: [String: Any]) -> Data {
+        try! JSONSerialization.data(withJSONObject: ["extensions": ["settings": entries]])
+    }
+    let path = "/Library/Application Support/Calm/BlankPage"
+
+    @Test func installedAndOn() {
+        #expect(BrowserExtensions.isInstalled(securePreferences: prefs(["abc": ["path": path, "location": 4, "disable_reasons": []]]), extensionPath: path))
+    }
+    @Test func turnedOffCountsAsMissing() {
+        #expect(!BrowserExtensions.isInstalled(securePreferences: prefs(["abc": ["path": path, "disable_reasons": [1]]]), extensionPath: path))
+        #expect(!BrowserExtensions.isInstalled(securePreferences: prefs(["abc": ["path": path, "state": 0]]), extensionPath: path))
+    }
+    @Test func otherExtensionsDontCount() {
+        #expect(!BrowserExtensions.isInstalled(securePreferences: prefs(["x": ["path": "x/1.0_0"]]), extensionPath: path))
+        #expect(!BrowserExtensions.isInstalled(securePreferences: Data("not json".utf8), extensionPath: path))
+    }
+}

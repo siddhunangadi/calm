@@ -2,6 +2,15 @@ import Foundation
 import CalmShared
 
 // calmd: Calm's guard. Started by launchd as root (see com.calm.calmd.plist).
+
+// Build helper: the built-in site list for the browser extension's black page.
+if CommandLine.arguments.dropFirst().first == "--print-sites" {
+    let sites = Blocklists.x + Blocklists.instagram + Blocklists.hotstar
+    let data = try JSONSerialization.data(withJSONObject: sites, options: [.prettyPrinted])
+    FileHandle.standardOutput.write(data)
+    exit(0)
+}
+
 guard getuid() == 0 else {
     FileHandle.standardError.write(Data("calmd must run as root (it is started by launchd).\n".utf8))
     exit(1)

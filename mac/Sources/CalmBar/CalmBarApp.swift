@@ -143,6 +143,7 @@ struct PanelView: View {
             streakCard
             if let s = guardClient.status, !s.chromeProfileInstalled { chromeCard }
             alerts
+            if let missing = guardClient.status?.blankPageMissing, !missing.isEmpty { blankPageCard(missing) }
             focusCard
             listenCard
             showCard
@@ -299,6 +300,33 @@ struct PanelView: View {
                             NSWorkspace.shared.open(url)
                         }
                     }
+                }
+                .controlSize(.small)
+            }
+        }
+    }
+
+    // MARK: Black page extension
+
+    private func blankPageCard(_ browsers: [String]) -> some View {
+        Card {
+            Row(symbol: "rectangle.fill", tint: .black, title: "Black page in \(browsers.joined(separator: " & "))",
+                subtitle: "Add the Calm extension so blocked sites go black") {
+                Button("How") {
+                    NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: CalmPaths.blankPageExtension)])
+                    let a = NSAlert()
+                    a.messageText = "Add the Calm extension"
+                    a.informativeText = """
+                    1. In \(browsers.first ?? "the browser"), open the address  \(browsers.first == "Comet" ? "comet://extensions" : "chrome://extensions")
+                    2. Turn on "Developer mode" (top right).
+                    3. Click "Load unpacked" and choose the BlankPage folder Finder just showed you \
+                    (Macintosh HD → Library → Application Support → Calm → BlankPage).
+                    4. In the Calm extension's Details, turn on "Allow access to file URLs" so sites you block later go black too.
+
+                    Once it's on, removing it later counts as tampering and restarts your streak.
+                    """
+                    NSApp.activate(ignoringOtherApps: true)
+                    a.runModal()
                 }
                 .controlSize(.small)
             }

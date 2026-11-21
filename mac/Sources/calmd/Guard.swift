@@ -25,6 +25,7 @@ final class Guard {
     private var dnsRescueInEffect = false
     private var bundleIDCache: [String: String] = [:]
     private var profileDropCreatedAt: Date?
+    private var blankPageMissing: [String] = []
 
     init() {
         let now = Date()
@@ -71,6 +72,7 @@ final class Guard {
         }
         if tick % 5 == 0 { checkChromeProfile(now: now) }
         if tick % 20 == 0 { protectOwnFiles() }
+        if tick % 20 == 0 { checkBlankPageExtension(now: now) }
 
         save()
         writeStatus(now: now)
@@ -298,6 +300,36 @@ final class Guard {
         }
     }
 
+    // MARK: - Black-page browser extension
+
+    /// Once the extension has been seen in a browser profile, removing or turning it off is tampering.
+    private func checkBlankPageExtension(now: Date) {
+        guard let uid = consoleUserID(), let pw = getpwuid(uid_t(uid)), let homeC = pw.pointee.pw_dir else { return }
+        let home = String(cString: homeC)
+        var missing: [String] = []
+        for browser in BrowserExtensions.browsers {
+            let dir = home + "/" + browser.dataDir
+            let profiles = BrowserExtensions.profiles(browserDir: dir)
+            if profiles.isEmpty { continue }
+            var anyMissing = false
+            for profile in profiles {
+                let key = "\(browser.name)/\(profile)"
+                guard let data = FileManager.default.contents(atPath: dir + "/" + profile + "/Secure Preferences") else { continue }
+                if BrowserExtensions.isInstalled(securePreferences: data) {
+                    if !settings.blankPageSeen.contains(key) { settings.blankPageSeen.append(key) }
+                } else {
+                    anyMissing = true
+                    if settings.blankPageSeen.contains(key) {
+                        settings.blankPageSeen.removeAll { $0 == key }
+                        tamper("Calm extension was removed from \(browser.name)", now: now)
+                    }
+                }
+            }
+            if anyMissing { missing.append(browser.name) }
+        }
+        blankPageMissing = missing
+    }
+
     // MARK: - Chrome lock profile
 
     private func chromeProfileInstalled() -> Bool {
@@ -415,7 +447,8 @@ final class Guard {
             lastMessage: lastMessage,
             showSessionEnds: state.showSessionEnds(now: now),
             showUsedToday: state.showUsedToday(now: now),
-            showEpisodeID: state.isShowSessionActive(now: now) ? state.showEpisodeID : nil)
+            showEpisodeID: state.isShowSessionActive(now: now) ? state.showEpisodeID : nil,
+            blankPageMissing: blankPageMissing)
         if let d = try? CalmJSON.encoder.encode(status) { try? writeFile(CalmPaths.statusFile, d, mode: 0o644) }
     }
 }
