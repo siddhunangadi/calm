@@ -40,6 +40,21 @@ public enum Blocklists {
         "dns.nextdns.io", "dns0.eu", "doh.mullvad.net", "dns.mullvad.net", "base.dns.mullvad.net",
     ]
 
+    /// Every browser is closed while the Mahadev session has Hotstar open, so Calm's own window
+    /// (series only, one episode) is the only way in.
+    public static let browsersClosedDuringShow: Set<String> = [
+        "com.apple.Safari", "com.apple.SafariTechnologyPreview",
+        "ai.perplexity.comet",
+        "com.google.Chrome", "com.google.Chrome.beta", "com.google.Chrome.dev", "com.google.Chrome.canary",
+        "com.google.chrome.for.testing", "org.chromium.Chromium",
+        "company.thebrowser.Browser", "company.thebrowser.dia",
+        "com.brave.Browser", "com.brave.Browser.beta", "com.brave.Browser.nightly",
+        "com.microsoft.edgemac", "com.microsoft.edgemac.Beta", "com.microsoft.edgemac.Dev",
+        "com.operasoftware.Opera", "com.operasoftware.OperaGX", "com.vivaldi.Vivaldi",
+        "com.kagi.kagimacOS", "org.mozilla.firefox", "app.zen-browser.zen", "net.imput.helium",
+        "com.openai.atlas", "com.sigmaos.sigmaos.macos", "com.duckduckgo.macos.browser",
+    ]
+
     /// Opened only during the daily Devon Ke Dev Mahadev session (Chrome's own block stays on).
     public static var showSites: Set<String> { Set(hotstar.flatMap { withWWW($0) }) }
 

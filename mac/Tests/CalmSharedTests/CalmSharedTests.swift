@@ -333,3 +333,13 @@ struct BrowserExtensionTests {
         #expect(!BrowserExtensions.isInstalled(securePreferences: Data("not json".utf8), extensionPath: path))
     }
 }
+
+struct ShowBrowserTests {
+    @Test func everyCommonBrowserClosesDuringShow() {
+        for id in ["ai.perplexity.comet", "com.apple.Safari", "com.google.Chrome", "company.thebrowser.Browser", "com.brave.Browser"] {
+            #expect(Blocklists.browsersClosedDuringShow.contains(id))
+        }
+        // Calm's own window lives in the menu-bar app, which must never be closed.
+        #expect(!Blocklists.browsersClosedDuringShow.contains("com.calm.bar"))
+    }
+}

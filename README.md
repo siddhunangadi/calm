@@ -59,7 +59,7 @@ JioHotstar stays blocked except for this one series. In the leaf menu, **Devon K
 Calm's own window for **40 minutes, once a day**:
 - the window has no address bar and only shows the series (search, its episodes and the sign-in pages);
 - the first episode you open that day is the only one that plays: other episodes, and autoplay, are stopped;
-- during those 40 minutes Safari is closed and Chrome keeps blocking Hotstar, so nothing else on Hotstar is reachable.
+- during those 40 minutes every browser (Comet, Chrome, Safari, Arc, Brave…) is closed, so Calm's window is the only way onto Hotstar.
 
 ## The 24-hour unlock
 

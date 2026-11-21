@@ -441,9 +441,9 @@ struct PanelView: View {
         let ends = st?.showSessionEnds.flatMap { $0 > Date() ? $0 : nil }
         let used = st?.showUsedToday ?? false
         let subtitle: String
-        if let ends { subtitle = "Today's episode · until \(ends.formatted(date: .omitted, time: .shortened))" }
+        if let ends { subtitle = "Browsers closed until \(ends.formatted(date: .omitted, time: .shortened))" }
         else if used { subtitle = "Today's episode is done · next one tomorrow" }
-        else { subtitle = "One episode a day · 40 minutes" }
+        else { subtitle = "One episode a day · browsers close for 40 min" }
         return Card {
             Row(symbol: "sparkles", tint: Color(red: 0.95, green: 0.55, blue: 0.15),
                 title: "Devon Ke Dev Mahadev", subtitle: subtitle) {

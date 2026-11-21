@@ -160,7 +160,7 @@ final class Guard {
 
     private func expectedHostsSection() -> String {
         let removed = Set(settings.removedSites)
-        // During today's Mahadev session Hotstar is reachable (Chrome still blocks it by policy; Safari is closed).
+        // During today's Mahadev session Hotstar is reachable (every browser is closed meanwhile).
         let open = state.isShowSessionActive(now: Date()) ? Blocklists.showSites : []
         return HostsFile.section(primary: settings.activeSites.filter { !open.contains($0) }, extra: adultDomains.filter { !removed.contains($0) })
     }
@@ -287,8 +287,8 @@ final class Guard {
     private func killBlockedApps() {
         var blocked = settings.activeApps
         if !chromeProfileInstalled() { blocked.insert(Blocklists.chromeBundleID) }
-        // Hotstar is open only for Calm's Mahadev window, so Safari can't be used to browse it meanwhile.
-        if state.isShowSessionActive(now: Date()) { blocked.insert("com.apple.Safari") }
+        // Hotstar is open only for Calm's Mahadev window, so no browser may run meanwhile.
+        if state.isShowSessionActive(now: Date()) { blocked.formUnion(Blocklists.browsersClosedDuringShow) }
         let out = sh("/bin/ps", ["-axww", "-o", "pid=,comm="]).out
         for line in out.split(whereSeparator: \.isNewline) {
             let trimmed = line.drop(while: { $0 == " " })
